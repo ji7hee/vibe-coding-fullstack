@@ -29,4 +29,11 @@ public class PostRepository {
     public List<Post> findAll() {
         return new ArrayList<>(posts);
     }
+
+    public Post findByNo(Long no) {
+        return posts.stream()
+                .filter(post -> post.getNo().equals(no))
+                .findFirst()
+                .orElse(null);
+    }
 }

@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>게시글 목록 | Vibe Coding</title>
+    <title th:text="${post.title} + ' | Vibe Coding'">게시글 상세 | Vibe Coding</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
         rel="stylesheet" />
@@ -74,54 +74,54 @@
 
     <!-- Content -->
     <main class="pt-32 pb-20">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-white rounded-[2rem] p-8 md:p-12 samsung-shadow">
-                <div class="flex justify-between items-end mb-12">
-                    <div>
-                        <h1 class="text-4xl font-bold font-display text-black mb-4">커뮤니티</h1>
-                        <p class="text-gray-500">생생한 개발 이야기를 공유하고 소통해 보세요.</p>
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white rounded-[2rem] p-8 md:p-16 samsung-shadow">
+                <!-- Post Header -->
+                <div class="border-b border-gray-100 pb-10 mb-10">
+                    <div
+                        class="flex items-center gap-3 text-xs font-bold text-samsung-blue uppercase tracking-widest mb-4">
+                        <span class="material-symbols-outlined text-sm">label</span>
+                        <span th:text="'No. ' + ${post.no}">No. 1</span>
                     </div>
-                    <button
-                        class="bg-samsung-blue hover:bg-blue-600 text-white px-8 py-3 rounded-full font-bold text-sm transition-all flex items-center gap-2">
-                        <span class="material-symbols-outlined text-sm">edit</span> 글쓰기
-                    </button>
+                    <h1 class="text-3xl md:text-5xl font-bold font-display text-black mb-6 leading-tight"
+                        th:text="${post.title}">게시글 제목입니다.</h1>
+                    <div class="flex flex-wrap items-center gap-6 text-sm text-gray-400">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-sm text-gray-300">calendar_today</span>
+                            <span th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}">2024-02-23
+                                16:20</span>
+                        </div>
+                        <div class="flex items-center gap-2" th:if="${post.updatedAt != post.createdAt}">
+                            <span class="material-symbols-outlined text-sm text-gray-300">update</span>
+                            <span th:text="'수정일: ' + ${#temporals.format(post.updatedAt, 'yyyy-MM-dd HH:mm')}"></span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-sm text-gray-300">visibility</span>
+                            <span th:text="${post.views} + ' views'">123 views</span>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Table -->
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left">
-                        <thead>
-                            <tr
-                                class="border-b border-gray-100 text-gray-400 text-xs uppercase tracking-widest font-bold">
-                                <th class="px-4 py-6 w-20">No</th>
-                                <th class="px-4 py-6">제목</th>
-                                <th class="px-4 py-6 w-40 text-center">작성일</th>
-                                <th class="px-4 py-6 w-24 text-center">조회수</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-50">
-                            <tr th:each="post : ${posts}"
-                                class="hover:bg-gray-50/50 transition-colors group cursor-pointer">
-                                <td class="px-4 py-6 text-sm text-gray-400" th:text="${post.no}">1</td>
-                                <td class="px-4 py-6 font-medium text-black group-hover:text-samsung-blue">
-                                    <a th:href="@{/posts/{no}(no=${post.no})}" th:text="${post.title}">게시글 제목입니다.</a>
-                                </td>
-                                <td class="px-4 py-6 text-sm text-gray-500 text-center"
-                                    th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd')}">2024-02-23</td>
-                                <td class="px-4 py-6 text-sm text-gray-500 text-center" th:text="${post.views}">0</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <!-- Post Content -->
+                <div class="prose prose-slate max-w-none text-lg text-gray-700 leading-relaxed min-h-[300px]"
+                    th:text="${post.content}">
+                    게시글 내용이 여기에 표시됩니다.
                 </div>
 
-                <!-- Pagination (Placeholder) -->
-                <div class="flex justify-center mt-12 gap-2">
-                    <button
-                        class="w-10 h-10 rounded-full bg-black text-white font-bold text-sm flex items-center justify-center">1</button>
-                    <button
-                        class="w-10 h-10 rounded-full bg-white border border-gray-100 text-gray-400 font-bold text-sm flex items-center justify-center hover:bg-gray-50">2</button>
-                    <button
-                        class="w-10 h-10 rounded-full bg-white border border-gray-100 text-gray-400 font-bold text-sm flex items-center justify-center hover:bg-gray-50">3</button>
+                <!-- Footer / Navigation -->
+                <div class="mt-20 pt-8 border-t border-gray-100 flex justify-between items-center">
+                    <a href="/posts"
+                        class="inline-flex items-center gap-2 text-gray-500 hover:text-black font-bold text-sm transition-all group">
+                        <span
+                            class="material-symbols-outlined transform group-hover:-translate-x-1 transition-transform">arrow_back</span>
+                        목록으로 돌아가기
+                    </a>
+                    <div class="flex gap-3">
+                        <button
+                            class="w-12 h-12 rounded-full border border-gray-100 flex items-center justify-center text-gray-400 hover:border-black hover:text-black transition-all">
+                            <span class="material-symbols-outlined">share</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
