@@ -1,8 +1,14 @@
 package com.example.vibeapp.post;
 
+import com.example.vibeapp.post.dto.PostCreateDto;
+import com.example.vibeapp.post.dto.PostResponseDto;
+import com.example.vibeapp.post.dto.PostUpdateDto;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,31 +32,42 @@ public class PostController {
 
     @GetMapping("/posts/{no}")
     public String detail(@PathVariable Long no, Model model) {
-        Post post = postService.findById(no);
+        PostResponseDto post = postService.findById(no);
         model.addAttribute("post", post);
         return "post/post_detail";
     }
 
     @GetMapping("/posts/new")
-    public String newForm() {
+    public String newForm(Model model) {
+        model.addAttribute("postCreateDto", new PostCreateDto());
         return "post/post_new_form";
     }
 
     @PostMapping("/posts/add")
-    public String add(@RequestParam String title, @RequestParam String content) {
-        postService.create(title, content);
+    public String add(@Valid @ModelAttribute PostCreateDto postCreateDto, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return "post/post_new_form";
+        }
+        postService.create(postCreateDto);
         return "redirect:/posts";
     }
     @GetMapping("/posts/{no}/edit")
     public String editForm(@PathVariable Long no, Model model) {
-        Post post = postService.findByIdWithoutViewCount(no);
+        PostResponseDto post = postService.findByIdWithoutViewCount(no);
         model.addAttribute("post", post);
+        model.addAttribute("postUpdateDto", new PostUpdateDto(post.getTitle(), post.getContent()));
         return "post/post_edit_form";
     }
 
     @PostMapping("/posts/{no}/save")
-    public String save(@PathVariable Long no, @RequestParam String title, @RequestParam String content) {
-        postService.update(no, title, content);
+    public String save(@PathVariable Long no, @Valid @ModelAttribute PostUpdateDto postUpdateDto, 
+                       BindingResult bindingResult, Model model) {
+        if (bindingResult.hasErrors()) {
+            PostResponseDto post = postService.findByIdWithoutViewCount(no);
+            model.addAttribute("post", post);
+            return "post/post_edit_form";
+        }
+        postService.update(no, postUpdateDto);
         return "redirect:/posts/" + no;
     }
 

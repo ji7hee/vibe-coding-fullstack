@@ -1,5 +1,9 @@
 package com.example.vibeapp.post;
 
+import com.example.vibeapp.post.dto.PostCreateDto;
+import com.example.vibeapp.post.dto.PostListDto;
+import com.example.vibeapp.post.dto.PostResponseDto;
+import com.example.vibeapp.post.dto.PostUpdateDto;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -14,7 +18,7 @@ public class PostService {
         this.postRepository = postRepository;
     }
 
-    public List<Post> findAll(int page, int size) {
+    public List<PostListDto> findAll(int page, int size) {
         List<Post> allPosts = postRepository.findAll().stream()
                 .sorted(Comparator.comparing(Post::getNo).reversed())
                 .collect(Collectors.toList());
@@ -25,7 +29,9 @@ public class PostService {
         }
         
         int toIndex = Math.min(fromIndex + size, allPosts.size());
-        return allPosts.subList(fromIndex, toIndex);
+        return allPosts.subList(fromIndex, toIndex).stream()
+                .map(PostListDto::from)
+                .collect(Collectors.toList());
     }
 
     public int getTotalPages(int size) {
@@ -33,36 +39,28 @@ public class PostService {
         return (int) Math.ceil((double) totalPosts / size);
     }
 
-    public Post findById(Long no) {
+    public PostResponseDto findById(Long no) {
         Post post = postRepository.findById(no);
         if (post != null) {
             post.setViews(post.getViews() + 1);
+            return PostResponseDto.from(post);
         }
-        return post;
+        return null;
     }
 
-    public Post findByIdWithoutViewCount(Long no) {
-        return postRepository.findById(no);
+    public PostResponseDto findByIdWithoutViewCount(Long no) {
+        Post post = postRepository.findById(no);
+        return post != null ? PostResponseDto.from(post) : null;
     }
 
-    public void create(String title, String content) {
-        Post post = new Post(
-                null,
-                title,
-                content,
-                LocalDateTime.now(),
-                null,
-                0
-        );
-        postRepository.save(post);
+    public void create(PostCreateDto createDto) {
+        postRepository.save(createDto.toEntity());
     }
 
-    public void update(Long no, String title, String content) {
+    public void update(Long no, PostUpdateDto updateDto) {
         Post post = postRepository.findById(no);
         if (post != null) {
-            post.setTitle(title);
-            post.setContent(content);
-            post.setUpdatedAt(LocalDateTime.now());
+            updateDto.updateEntity(post);
         }
     }
 
