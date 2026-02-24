@@ -121,6 +121,11 @@
                             class="w-12 h-12 rounded-full border border-gray-100 flex items-center justify-center text-gray-400 hover:border-black hover:text-black transition-all">
                             <span class="material-symbols-outlined">share</span>
                         </button>
+                        <a th:href="@{/posts/{no}/edit(no=${post.no})}"
+                            class="w-12 h-12 rounded-full bg-black text-white flex items-center justify-center hover:bg-gray-800 transition-all"
+                            title="수정하기">
+                            <span class="material-symbols-outlined">edit</span>
+                        </a>
                     </div>
                 </div>
             </div>

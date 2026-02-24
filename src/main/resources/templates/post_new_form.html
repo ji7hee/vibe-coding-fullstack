@@ -86,13 +86,13 @@
                     <p class="text-gray-500 text-sm">생각이나 질문을 공유해 보세요. 상호 존중하는 문화를 함께 만들어가요.</p>
                 </div>
 
-                <form onsubmit="alert('새 게시글 등록'); return false;">
+                <form action="/posts/add" method="POST">
                     <div class="space-y-8">
                         <!-- Title Field -->
                         <div>
                             <label for="title"
                                 class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">제목</label>
-                            <input type="text" id="title" required
+                            <input type="text" id="title" name="title" required
                                 class="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl text-lg font-medium placeholder:text-gray-300 focus:outline-none input-focus transition-all"
                                 placeholder="제목을 입력해 주세요">
                         </div>
@@ -101,7 +101,7 @@
                         <div>
                             <label for="content"
                                 class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">내용</label>
-                            <textarea id="content" required rows="10"
+                            <textarea id="content" name="content" required rows="10"
                                 class="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl text-lg placeholder:text-gray-300 focus:outline-none input-focus transition-all resize-none"
                                 placeholder="당신의 바이브를 들려주세요..."></textarea>
                         </div>

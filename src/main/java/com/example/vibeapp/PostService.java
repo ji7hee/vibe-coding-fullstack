@@ -1,6 +1,7 @@
 package com.example.vibeapp;
 
 import org.springframework.stereotype.Service;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,5 +26,21 @@ public class PostService {
             post.setViews(post.getViews() + 1);
         }
         return post;
+    }
+
+    public Post getPostWithoutViewCount(Long no) {
+        return postRepository.findByNo(no);
+    }
+
+    public void addPost(String title, String content) {
+        Post post = new Post(
+                null,
+                title,
+                content,
+                LocalDateTime.now(),
+                null,
+                0
+        );
+        postRepository.save(post);
     }
 }
