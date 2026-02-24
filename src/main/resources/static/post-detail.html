@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>게시글 상세 | Vibe Coding</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script>tailwind.config = { theme: { extend: { colors: { "samsung-blue": "#2189FF" }, fontFamily: { sans: ["Inter", "sans-serif"] } } } }</script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        .glass-nav {
+            backdrop-filter: blur(20px);
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .samsung-shadow {
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 text-slate-900">
+
+    <nav class="fixed top-0 w-full z-50 glass-nav border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-2">
+                    <div class="bg-black p-1.5 rounded-lg flex items-center justify-center">
+                        <span class="material-symbols-outlined text-white text-xl">terminal</span>
+                    </div>
+                    <a href="/" class="text-xl font-bold tracking-tight text-black">Vibe Coding</a>
+                </div>
+                <a href="/posts.html"
+                    class="text-sm font-medium text-black hover:text-blue-500 transition-colors">Community</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-32 pb-20">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div id="content" class="bg-white rounded-3xl p-8 md:p-16 samsung-shadow">
+                <div class="text-center text-gray-400 py-12">불러오는 중...</div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-white border-t border-gray-100 py-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-gray-400 text-xs">© 2024 Vibe Coding. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const params = new URLSearchParams(location.search);
+        const no = params.get('no');
+
+        function formatDate(isoStr) {
+            if (!isoStr) return '-';
+            return new Date(isoStr).toLocaleString('ko-KR');
+        }
+
+        function escapeHtml(str) {
+            return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        async function loadPost() {
+            if (!no) { location.href = '/posts.html'; return; }
+            try {
+                const res = await fetch(`/api/posts/${no}`);
+                if (!res.ok) throw new Error('조회 실패');
+                const post = await res.json();
+                renderPost(post);
+            } catch {
+                document.getElementById('content').innerHTML =
+                    '<div class="text-center text-red-400 py-12">게시글을 불러올 수 없습니다.</div>';
+            }
+        }
+
+        function renderPost(post) {
+            const tags = post.tags
+                ? post.tags.split(',').map(t => `<span class="px-3 py-1 bg-gray-50 text-gray-500 text-xs font-bold rounded-full border border-gray-100">#${escapeHtml(t.trim())}</span>`).join(' ')
+                : '';
+
+            document.title = `${escapeHtml(post.title)} | Vibe Coding`;
+            document.getElementById('content').innerHTML = `
+          <div class="border-b border-gray-100 pb-10 mb-10">
+            <p class="text-xs text-blue-500 font-bold uppercase tracking-widest mb-4">No. ${post.no}</p>
+            <h1 class="text-3xl md:text-5xl font-bold text-black mb-6 leading-tight">${escapeHtml(post.title)}</h1>
+            ${tags ? `<div class="flex flex-wrap gap-2 mb-8">${tags}</div>` : ''}
+            <div class="flex flex-wrap items-center gap-6 text-sm text-gray-400">
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm text-gray-300">calendar_today</span>
+                ${formatDate(post.createdAt)}
+              </div>
+              ${post.updatedAt ? `<div class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-gray-300">update</span>수정일: ${formatDate(post.updatedAt)}</div>` : ''}
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm text-gray-300">visibility</span>
+                ${post.views ?? 0} views
+              </div>
+            </div>
+          </div>
+
+          <div class="text-lg text-gray-700 leading-relaxed whitespace-pre-wrap min-h-[200px]">${escapeHtml(post.content)}</div>
+
+          <div class="mt-16 pt-8 border-t border-gray-100 flex justify-between items-center">
+            <a href="/posts.html" class="inline-flex items-center gap-2 text-gray-500 hover:text-black font-bold text-sm transition-all group">
+              <span class="material-symbols-outlined group-hover:-translate-x-1 transition-transform">arrow_back</span>
+              목록으로 돌아가기
+            </a>
+            <div class="flex gap-3">
+              <a href="/post-edit.html?no=${post.no}"
+                 class="w-12 h-12 rounded-full bg-white border border-gray-100 text-black flex items-center justify-center hover:bg-gray-50 transition-all" title="수정하기">
+                <span class="material-symbols-outlined">edit</span>
+              </a>
+              <button onclick="deletePost(${post.no})"
+                      class="w-12 h-12 rounded-full bg-black text-white flex items-center justify-center hover:bg-gray-800 transition-all" title="삭제하기">
+                <span class="material-symbols-outlined">delete</span>
+              </button>
+            </div>
+          </div>
+        `;
+        }
+
+        async function deletePost(no) {
+            if (!confirm('정말 삭제하시겠습니까?')) return;
+            const res = await fetch(`/api/posts/${no}`, { method: 'DELETE' });
+            if (res.ok) {
+                location.href = '/posts.html';
+            } else {
+                alert('삭제에 실패했습니다.');
+            }
+        }
+
+        loadPost();
+    </script>
+</body>
+
+</html>

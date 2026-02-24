@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>새 글 작성 | Vibe Coding</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script>tailwind.config = { theme: { extend: { colors: { "samsung-blue": "#2189FF" }, fontFamily: { sans: ["Inter", "sans-serif"] } } } }</script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        .glass-nav {
+            backdrop-filter: blur(20px);
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .samsung-shadow {
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+        }
+
+        .input-focus:focus {
+            border-color: #2189FF;
+            box-shadow: 0 0 0 4px rgba(33, 137, 255, 0.1);
+            outline: none;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 text-slate-900">
+
+    <nav class="fixed top-0 w-full z-50 glass-nav border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-2">
+                    <div class="bg-black p-1.5 rounded-lg flex items-center justify-center">
+                        <span class="material-symbols-outlined text-white text-xl">terminal</span>
+                    </div>
+                    <a href="/" class="text-xl font-bold tracking-tight text-black">Vibe Coding</a>
+                </div>
+                <a href="/posts.html"
+                    class="text-sm font-medium text-black hover:text-blue-500 transition-colors">Community</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-32 pb-20">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white rounded-3xl p-8 md:p-12 samsung-shadow">
+                <div class="mb-10">
+                    <h1 class="text-3xl font-bold text-black mb-2">새 글 작성</h1>
+                    <p class="text-gray-400 text-sm">생각이나 질문을 공유해 보세요.</p>
+                </div>
+
+                <div id="error-msg"
+                    class="hidden mb-6 px-4 py-3 bg-red-50 text-red-600 text-sm rounded-2xl border border-red-100">
+                </div>
+
+                <form id="post-form" class="space-y-8">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">제목</label>
+                        <input id="title" type="text" maxlength="200" required
+                            class="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl text-lg font-medium placeholder:text-gray-300 input-focus transition-all"
+                            placeholder="제목을 입력해 주세요" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">내용</label>
+                        <textarea id="content" rows="10"
+                            class="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl text-lg placeholder:text-gray-300 input-focus transition-all resize-none"
+                            placeholder="당신의 바이브를 들려주세요..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">태그 (쉼표로
+                            구분)</label>
+                        <input id="tags" type="text"
+                            class="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl text-lg font-medium placeholder:text-gray-300 input-focus transition-all"
+                            placeholder="#Java, #Spring, #바이브" />
+                    </div>
+                    <div class="pt-4 flex flex-col sm:flex-row gap-4">
+                        <button type="submit"
+                            class="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-full font-bold text-lg shadow-lg shadow-blue-200 transition-all flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined">send</span> 등록하기
+                        </button>
+                        <a href="/posts.html"
+                            class="flex-1 bg-white border border-gray-200 hover:bg-gray-50 text-black px-8 py-4 rounded-full font-bold text-lg transition-all flex items-center justify-center">
+                            취소
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-white border-t border-gray-100 py-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-gray-400 text-xs">© 2024 Vibe Coding. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('post-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const errEl = document.getElementById('error-msg');
+            errEl.classList.add('hidden');
+
+            const body = {
+                title: document.getElementById('title').value.trim(),
+                content: document.getElementById('content').value.trim(),
+                tags: document.getElementById('tags').value.trim()
+            };
+
+            try {
+                const res = await fetch('/api/posts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+
+                if (res.status === 201) {
+                    const post = await res.json();
+                    location.href = `/post-detail.html?no=${post.no}`;
+                } else {
+                    const err = await res.json();
+                    errEl.textContent = err.message || '등록에 실패했습니다.';
+                    errEl.classList.remove('hidden');
+                }
+            } catch {
+                errEl.textContent = '서버와 통신할 수 없습니다.';
+                errEl.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+
+</html>

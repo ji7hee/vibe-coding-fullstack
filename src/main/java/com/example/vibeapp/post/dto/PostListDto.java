@@ -1,12 +1,13 @@
 package com.example.vibeapp.post.dto;
 
 import com.example.vibeapp.post.Post;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDateTime;
 
 public record PostListDto(
     Long no,
     String title,
-    LocalDateTime createdAt,
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime createdAt,
     Integer views
 ) {
     public static PostListDto from(Post post) {

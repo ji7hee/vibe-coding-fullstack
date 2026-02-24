@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,19 +43,17 @@ public class PostService {
 
     @Transactional
     public PostResponseDto findById(Long no) {
-        return postRepository.findById(no)
-                .map(post -> {
-                    postRepository.updateViews(no);
-                    post.setViews(post.getViews() + 1);
-                    return PostResponseDto.from(post, getTagsAsString(no));
-                })
-                .orElse(null);
+        Post post = postRepository.findById(no)
+                .orElseThrow(() -> new NoSuchElementException("게시글을 찾을 수 없습니다: " + no));
+        postRepository.updateViews(no);
+        post.setViews(post.getViews() + 1);
+        return PostResponseDto.from(post, getTagsAsString(no));
     }
 
     public PostResponseDto findByIdWithoutViewCount(Long no) {
-        return postRepository.findById(no)
-                .map(post -> PostResponseDto.from(post, getTagsAsString(no)))
-                .orElse(null);
+        Post post = postRepository.findById(no)
+                .orElseThrow(() -> new NoSuchElementException("게시글을 찾을 수 없습니다: " + no));
+        return PostResponseDto.from(post, getTagsAsString(no));
     }
 
     private String getTagsAsString(Long postNo) {
@@ -68,25 +67,25 @@ public class PostService {
      * 게시글 등록: 게시글 INSERT + 태그 INSERT를 하나의 트랜잭션으로 처리
      */
     @Transactional
-    public void create(PostCreateDto createDto) {
+    public PostResponseDto create(PostCreateDto createDto) {
         Post post = createDto.toEntity();
-        // persist() 호출 즉시 INSERT되어 post.getNo()에 생성된 PK가 채워짐 (IDENTITY 전략)
         postRepository.insert(post);
         saveTags(post.getNo(), createDto.tags());
+        return PostResponseDto.from(post, createDto.tags() != null ? createDto.tags().trim() : "");
     }
 
     /**
      * 게시글 수정: 게시글 UPDATE + 태그 DELETE/INSERT를 하나의 트랜잭션으로 처리
-     * findById()로 가져온 엔티티는 영속 상태이므로, 필드 변경만으로
-     * 트랜잭션 커밋 시 변경 감지(Dirty Checking)에 의해 자동 UPDATE됨
+     * 변경 감지(Dirty Checking)에 의해 트랜잭션 커밋 시 자동 UPDATE
      */
     @Transactional
-    public void update(Long no, PostUpdateDto updateDto) {
-        postRepository.findById(no).ifPresent(post -> {
-            updateDto.updateEntity(post); // 변경 감지: 트랜잭션 커밋 시 자동 UPDATE
-            postTagRepository.deleteByPostNo(no);
-            saveTags(no, updateDto.tags());
-        });
+    public PostResponseDto update(Long no, PostUpdateDto updateDto) {
+        Post post = postRepository.findById(no)
+                .orElseThrow(() -> new NoSuchElementException("게시글을 찾을 수 없습니다: " + no));
+        updateDto.updateEntity(post);
+        postTagRepository.deleteByPostNo(no);
+        saveTags(no, updateDto.tags());
+        return PostResponseDto.from(post, getTagsAsString(no));
     }
 
     private void saveTags(Long postNo, String tagsString) {
@@ -105,6 +104,8 @@ public class PostService {
 
     @Transactional
     public void delete(Long no) {
+        postRepository.findById(no)
+                .orElseThrow(() -> new NoSuchElementException("게시글을 찾을 수 없습니다: " + no));
         postRepository.delete(no);
     }
 }

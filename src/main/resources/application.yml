@@ -28,6 +28,7 @@ spring:
       hibernate:
         format_sql: true
 
+
 logging:
   file:
     name: ./logs/app.log
