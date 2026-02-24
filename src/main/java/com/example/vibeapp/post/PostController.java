@@ -55,7 +55,7 @@ public class PostController {
     public String editForm(@PathVariable Long no, Model model) {
         PostResponseDto post = postService.findByIdWithoutViewCount(no);
         model.addAttribute("post", post);
-        model.addAttribute("postUpdateDto", new PostUpdateDto(post.getTitle(), post.getContent()));
+        model.addAttribute("postUpdateDto", new PostUpdateDto(post.title(), post.content()));
         return "post/post_edit_form";
     }
 
