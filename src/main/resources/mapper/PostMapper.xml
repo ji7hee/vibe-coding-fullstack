@@ -3,20 +3,20 @@
 <mapper namespace="com.example.vibeapp.post.PostMapper">
 
     <select id="findAll" resultType="Post">
-        SELECT * FROM POST ORDER BY no DESC
+        SELECT * FROM POSTS ORDER BY no DESC
     </select>
 
     <select id="findById" resultType="Post">
-        SELECT * FROM POST WHERE no = #{no}
+        SELECT * FROM POSTS WHERE no = #{no}
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="no">
-        INSERT INTO POST (title, content, created_at, views)
+        INSERT INTO POSTS (title, content, created_at, views)
         VALUES (#{title}, #{content}, #{createdAt}, #{views})
     </insert>
 
     <update id="update">
-        UPDATE POST
+        UPDATE POSTS
         SET title = #{title},
             content = #{content},
             updated_at = #{updatedAt}
@@ -24,15 +24,15 @@
     </update>
 
     <delete id="delete">
-        DELETE FROM POST WHERE no = #{no}
+        DELETE FROM POSTS WHERE no = #{no}
     </delete>
 
     <select id="count" resultType="int">
-        SELECT COUNT(*) FROM POST
+        SELECT COUNT(*) FROM POSTS
     </select>
 
     <update id="updateViews">
-        UPDATE POST SET views = views + 1 WHERE no = #{no}
+        UPDATE POSTS SET views = views + 1 WHERE no = #{no}
     </update>
 
 </mapper>
