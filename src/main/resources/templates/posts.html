@@ -114,14 +114,28 @@
                     </table>
                 </div>
 
-                <!-- Pagination (Placeholder) -->
-                <div class="flex justify-center mt-12 gap-2">
-                    <button
-                        class="w-10 h-10 rounded-full bg-black text-white font-bold text-sm flex items-center justify-center">1</button>
-                    <button
-                        class="w-10 h-10 rounded-full bg-white border border-gray-100 text-gray-400 font-bold text-sm flex items-center justify-center hover:bg-gray-50">2</button>
-                    <button
-                        class="w-10 h-10 rounded-full bg-white border border-gray-100 text-gray-400 font-bold text-sm flex items-center justify-center hover:bg-gray-50">3</button>
+                <!-- Pagination -->
+                <div class="flex justify-center mt-12 gap-2" th:if="${totalPages > 0}">
+                    <!-- Previous Page -->
+                    <a th:href="@{/posts(page=${currentPage - 1})}" th:if="${currentPage > 1}"
+                        class="w-10 h-10 rounded-full bg-white border border-gray-100 text-gray-400 font-bold text-sm flex items-center justify-center hover:bg-gray-50 transition-all">
+                        <span class="material-symbols-outlined text-sm">chevron_left</span>
+                    </a>
+
+                    <!-- Page Numbers -->
+                    <div th:each="pageNum : ${#numbers.sequence(1, totalPages)}" class="inline-flex gap-2">
+                        <a th:href="@{/posts(page=${pageNum})}" th:text="${pageNum}"
+                            th:classappend="${pageNum == currentPage} ? 'bg-black text-white' : 'bg-white border border-gray-100 text-gray-400 hover:bg-gray-50'"
+                            class="w-10 h-10 rounded-full font-bold text-sm flex items-center justify-center transition-all">
+                            1
+                        </a>
+                    </div>
+
+                    <!-- Next Page -->
+                    <a th:href="@{/posts(page=${currentPage + 1})}" th:if="${currentPage < totalPages}"
+                        class="w-10 h-10 rounded-full bg-white border border-gray-100 text-gray-400 font-bold text-sm flex items-center justify-center hover:bg-gray-50 transition-all">
+                        <span class="material-symbols-outlined text-sm">chevron_right</span>
+                    </a>
                 </div>
             </div>
         </div>

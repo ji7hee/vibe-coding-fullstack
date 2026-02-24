@@ -14,10 +14,23 @@ public class PostService {
         this.postRepository = postRepository;
     }
 
-    public List<Post> getPostList() {
-        return postRepository.findAll().stream()
+    public List<Post> getPostList(int page, int size) {
+        List<Post> allPosts = postRepository.findAll().stream()
                 .sorted(Comparator.comparing(Post::getNo).reversed())
                 .collect(Collectors.toList());
+        
+        int fromIndex = (page - 1) * size;
+        if (fromIndex >= allPosts.size()) {
+            return List.of();
+        }
+        
+        int toIndex = Math.min(fromIndex + size, allPosts.size());
+        return allPosts.subList(fromIndex, toIndex);
+    }
+
+    public int getTotalPages(int size) {
+        int totalPosts = postRepository.findAll().size();
+        return (int) Math.ceil((double) totalPosts / size);
     }
 
     public Post getPost(Long no) {
