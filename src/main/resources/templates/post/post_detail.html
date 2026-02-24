@@ -85,6 +85,15 @@
                     </div>
                     <h1 class="text-3xl md:text-5xl font-bold font-display text-black mb-6 leading-tight"
                         th:text="${post.title}">게시글 제목입니다.</h1>
+
+                    <!-- Tags Display -->
+                    <div th:if="${not #strings.isEmpty(post.tags)}" class="flex flex-wrap gap-2 mb-8">
+                        <span th:each="tag : ${#strings.arraySplit(post.tags, ',')}" th:text="'#' + ${tag.trim()}"
+                            class="px-3 py-1 bg-gray-50 text-gray-500 text-xs font-bold rounded-full border border-gray-100 hover:bg-samsung-blue hover:text-white hover:border-samsung-blue transition-all cursor-default">
+                            #Tag
+                        </span>
+                    </div>
+
                     <div class="flex flex-wrap items-center gap-6 text-sm text-gray-400">
                         <div class="flex items-center gap-2">
                             <span class="material-symbols-outlined text-sm text-gray-300">calendar_today</span>
