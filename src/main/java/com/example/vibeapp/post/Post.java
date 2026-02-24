@@ -1,16 +1,40 @@
 package com.example.vibeapp.post;
 
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+/**
+ * 게시글(POSTS) 테이블과 매핑되는 JPA 엔티티 클래스
+ */
+@Entity
+@Table(name = "POSTS")
 public class Post {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "no")
     private Long no;
+
+    @Column(name = "title", nullable = false, length = 200)
     private String title;
+
+    @Column(name = "content", nullable = false, columnDefinition = "CLOB")
     private String content;
+
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Column(name = "views")
     private Integer views;
 
-    public Post(Long no, String title, String content, LocalDateTime createdAt, LocalDateTime updatedAt, Integer views) {
+    // JPA는 기본 생성자가 필요함 (protected 또는 public)
+    protected Post() {}
+
+    public Post(Long no, String title, String content,
+                LocalDateTime createdAt, LocalDateTime updatedAt, Integer views) {
         this.no = no;
         this.title = title;
         this.content = content;

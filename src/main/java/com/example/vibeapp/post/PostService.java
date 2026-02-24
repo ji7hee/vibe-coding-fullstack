@@ -6,27 +6,29 @@ import com.example.vibeapp.post.dto.PostResponseDto;
 import com.example.vibeapp.post.dto.PostUpdateDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 public class PostService {
-    private final PostMapper postMapper;
+
+    private final PostRepository postRepository;
     private final PostTagRepository postTagRepository;
 
-    public PostService(PostMapper postMapper, PostTagRepository postTagRepository) {
-        this.postMapper = postMapper;
+    public PostService(PostRepository postRepository, PostTagRepository postTagRepository) {
+        this.postRepository = postRepository;
         this.postTagRepository = postTagRepository;
     }
 
     public List<PostListDto> findAll(int page, int size) {
-        List<Post> allPosts = postMapper.findAll();
-        
+        List<Post> allPosts = postRepository.findAll();
+
         int fromIndex = (page - 1) * size;
         if (fromIndex >= allPosts.size()) {
             return List.of();
         }
-        
+
         int toIndex = Math.min(fromIndex + size, allPosts.size());
         return allPosts.subList(fromIndex, toIndex).stream()
                 .map(PostListDto::from)
@@ -34,23 +36,25 @@ public class PostService {
     }
 
     public int getTotalPages(int size) {
-        int totalPosts = postMapper.count();
+        int totalPosts = postRepository.count();
         return (int) Math.ceil((double) totalPosts / size);
     }
 
+    @Transactional
     public PostResponseDto findById(Long no) {
-        Post post = postMapper.findById(no);
-        if (post != null) {
-            postMapper.updateViews(no);
-            post.setViews(post.getViews() + 1);
-            return PostResponseDto.from(post, getTagsAsString(no));
-        }
-        return null;
+        return postRepository.findById(no)
+                .map(post -> {
+                    postRepository.updateViews(no);
+                    post.setViews(post.getViews() + 1);
+                    return PostResponseDto.from(post, getTagsAsString(no));
+                })
+                .orElse(null);
     }
 
     public PostResponseDto findByIdWithoutViewCount(Long no) {
-        Post post = postMapper.findById(no);
-        return post != null ? PostResponseDto.from(post, getTagsAsString(no)) : null;
+        return postRepository.findById(no)
+                .map(post -> PostResponseDto.from(post, getTagsAsString(no)))
+                .orElse(null);
     }
 
     private String getTagsAsString(Long postNo) {
@@ -60,30 +64,36 @@ public class PostService {
                 .collect(Collectors.joining(", "));
     }
 
+    /**
+     * 게시글 등록: 게시글 INSERT + 태그 INSERT를 하나의 트랜잭션으로 처리
+     */
     @Transactional
     public void create(PostCreateDto createDto) {
         Post post = createDto.toEntity();
-        postMapper.insert(post);
+        // persist() 호출 즉시 INSERT되어 post.getNo()에 생성된 PK가 채워짐 (IDENTITY 전략)
+        postRepository.insert(post);
         saveTags(post.getNo(), createDto.tags());
     }
 
+    /**
+     * 게시글 수정: 게시글 UPDATE + 태그 DELETE/INSERT를 하나의 트랜잭션으로 처리
+     * findById()로 가져온 엔티티는 영속 상태이므로, 필드 변경만으로
+     * 트랜잭션 커밋 시 변경 감지(Dirty Checking)에 의해 자동 UPDATE됨
+     */
     @Transactional
     public void update(Long no, PostUpdateDto updateDto) {
-        Post post = postMapper.findById(no);
-        if (post != null) {
-            updateDto.updateEntity(post);
-            postMapper.update(post);
-            
+        postRepository.findById(no).ifPresent(post -> {
+            updateDto.updateEntity(post); // 변경 감지: 트랜잭션 커밋 시 자동 UPDATE
             postTagRepository.deleteByPostNo(no);
             saveTags(no, updateDto.tags());
-        }
+        });
     }
 
     private void saveTags(Long postNo, String tagsString) {
         if (tagsString == null || tagsString.isBlank()) {
             return;
         }
-        
+
         String[] tags = tagsString.split(",");
         for (String tagName : tags) {
             String trimmedTag = tagName.trim();
@@ -93,7 +103,8 @@ public class PostService {
         }
     }
 
+    @Transactional
     public void delete(Long no) {
-        postMapper.delete(no);
+        postRepository.delete(no);
     }
 }
