@@ -33,3 +33,9 @@ bin/
 ### OS ###
 .DS_Store
 Thumbs.db
+
+### Project Custom ###
+/data/
+/logs/
+*.mv.db
+*.trace.db
