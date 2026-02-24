@@ -122,9 +122,14 @@
                             <span class="material-symbols-outlined">share</span>
                         </button>
                         <a th:href="@{/posts/{no}/edit(no=${post.no})}"
-                            class="w-12 h-12 rounded-full bg-black text-white flex items-center justify-center hover:bg-gray-800 transition-all"
+                            class="w-12 h-12 rounded-full bg-white border border-gray-100 text-black flex items-center justify-center hover:bg-gray-50 transition-all"
                             title="수정하기">
                             <span class="material-symbols-outlined">edit</span>
+                        </a>
+                        <a th:href="@{/posts/{no}/delete(no=${post.no})}" onclick="return confirm('정말 삭제하시겠습니까?')"
+                            class="w-12 h-12 rounded-full bg-black text-white flex items-center justify-center hover:bg-gray-800 transition-all"
+                            title="삭제하기">
+                            <span class="material-symbols-outlined">delete</span>
                         </a>
                     </div>
                 </div>

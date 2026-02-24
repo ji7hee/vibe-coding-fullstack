@@ -50,4 +50,10 @@ public class PostController {
         postService.updatePost(no, title, content);
         return "redirect:/posts/" + no;
     }
+
+    @GetMapping("/posts/{no}/delete")
+    public String delete(@PathVariable Long no) {
+        postService.deletePost(no);
+        return "redirect:/posts";
+    }
 }
