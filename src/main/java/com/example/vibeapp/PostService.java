@@ -43,4 +43,13 @@ public class PostService {
         );
         postRepository.save(post);
     }
+
+    public void updatePost(Long no, String title, String content) {
+        Post post = postRepository.findByNo(no);
+        if (post != null) {
+            post.setTitle(title);
+            post.setContent(content);
+            post.setUpdatedAt(LocalDateTime.now());
+        }
+    }
 }
