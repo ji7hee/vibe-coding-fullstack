@@ -14,7 +14,7 @@ public class PostService {
         this.postRepository = postRepository;
     }
 
-    public List<Post> getPostList(int page, int size) {
+    public List<Post> findAll(int page, int size) {
         List<Post> allPosts = postRepository.findAll().stream()
                 .sorted(Comparator.comparing(Post::getNo).reversed())
                 .collect(Collectors.toList());
@@ -33,19 +33,19 @@ public class PostService {
         return (int) Math.ceil((double) totalPosts / size);
     }
 
-    public Post getPost(Long no) {
-        Post post = postRepository.findByNo(no);
+    public Post findById(Long no) {
+        Post post = postRepository.findById(no);
         if (post != null) {
             post.setViews(post.getViews() + 1);
         }
         return post;
     }
 
-    public Post getPostWithoutViewCount(Long no) {
-        return postRepository.findByNo(no);
+    public Post findByIdWithoutViewCount(Long no) {
+        return postRepository.findById(no);
     }
 
-    public void addPost(String title, String content) {
+    public void create(String title, String content) {
         Post post = new Post(
                 null,
                 title,
@@ -57,8 +57,8 @@ public class PostService {
         postRepository.save(post);
     }
 
-    public void updatePost(Long no, String title, String content) {
-        Post post = postRepository.findByNo(no);
+    public void update(Long no, String title, String content) {
+        Post post = postRepository.findById(no);
         if (post != null) {
             post.setTitle(title);
             post.setContent(content);
@@ -66,7 +66,7 @@ public class PostService {
         }
     }
 
-    public void deletePost(Long no) {
+    public void delete(Long no) {
         postRepository.delete(no);
     }
 }

@@ -18,7 +18,7 @@ public class PostController {
     @GetMapping("/posts")
     public String list(@RequestParam(defaultValue = "1") int page, Model model) {
         int pageSize = 5;
-        model.addAttribute("posts", postService.getPostList(page, pageSize));
+        model.addAttribute("posts", postService.findAll(page, pageSize));
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", postService.getTotalPages(pageSize));
         return "post/posts";
@@ -26,7 +26,7 @@ public class PostController {
 
     @GetMapping("/posts/{no}")
     public String detail(@PathVariable Long no, Model model) {
-        Post post = postService.getPost(no);
+        Post post = postService.findById(no);
         model.addAttribute("post", post);
         return "post/post_detail";
     }
@@ -38,25 +38,25 @@ public class PostController {
 
     @PostMapping("/posts/add")
     public String add(@RequestParam String title, @RequestParam String content) {
-        postService.addPost(title, content);
+        postService.create(title, content);
         return "redirect:/posts";
     }
     @GetMapping("/posts/{no}/edit")
     public String editForm(@PathVariable Long no, Model model) {
-        Post post = postService.getPostWithoutViewCount(no);
+        Post post = postService.findByIdWithoutViewCount(no);
         model.addAttribute("post", post);
         return "post/post_edit_form";
     }
 
     @PostMapping("/posts/{no}/save")
     public String save(@PathVariable Long no, @RequestParam String title, @RequestParam String content) {
-        postService.updatePost(no, title, content);
+        postService.update(no, title, content);
         return "redirect:/posts/" + no;
     }
 
     @GetMapping("/posts/{no}/delete")
     public String delete(@PathVariable Long no) {
-        postService.deletePost(no);
+        postService.delete(no);
         return "redirect:/posts";
     }
 }

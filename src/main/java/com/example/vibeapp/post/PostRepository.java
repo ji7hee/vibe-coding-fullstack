@@ -36,7 +36,7 @@ public class PostRepository {
         return new ArrayList<>(posts);
     }
 
-    public Post findByNo(Long no) {
+    public Post findById(Long no) {
         return posts.stream()
                 .filter(post -> post.getNo().equals(no))
                 .findFirst()
